@@ -1,0 +1,29 @@
+{
+  "name": "loggify-node",
+  "version": "0.0.1",
+  "description": "Client for loggify web service",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lcnvdl/loggify-node.git"
+  },
+  "keywords": [
+    "loggify"
+  ],
+  "author": "lcnvdl",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lcnvdl/loggify-node/issues"
+  },
+  "homepage": "https://github.com/lcnvdl/loggify-node#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2"
+  }
+}
