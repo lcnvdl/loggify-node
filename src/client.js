@@ -45,11 +45,6 @@ class LoggifyClient {
         await this._assertSession();
         await this._axios.post("logs", { logs });
     }
-
-    async clear() {
-        await this._assertSession();
-        await this._axios.delete("logs");
-    }
 }
 
 module.exports = LoggifyClient;

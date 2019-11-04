@@ -1,24 +1,23 @@
 const Storage = require("./storage");
 const LogMessage = require("./log-message");
 const LoggifyClient = require("./client");
-const asyncTimeout = require("./async-timeout");
 
 class LoggifyManager {
-    constructor(projectKey, url, syncTimerInterval) {
+    constructor(project, key, url, syncTimerInterval) {
         this.url = url;
-        this.projectKey = projectKey;
+        this.project = project;
+        this.key = key;
         this.logs = Storage.loadObjectSync(this._logsKey) || [];
         this.userId = null;
         this.syncTimerInterval = syncTimerInterval || 15000;
 
-        this._client = new LoggifyClient(this.projectKey, this.url);
+        this._client = new LoggifyClient(this.project, this.key, this.url);
         this._isSyncing = false;
         this._interval = null;
-        this._startTimers();
     }
 
     get _logsKey() {
-        return `${this.projectKey}-logs`;
+        return `${this.project}-logs`;
     }
 
     /**
@@ -53,7 +52,16 @@ class LoggifyManager {
         }
     }
 
-    _startTimers() {
+    setAutoSync(value) {
+        if (!value) {
+            this.dispose();
+            return;
+        }
+
+        if (this._interval) {
+            return;
+        }
+
         this._interval = setInterval(async () => {
             if (!this._isSyncing) {
                 this._isSyncing = true;

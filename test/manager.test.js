@@ -1,4 +1,4 @@
-const {expect} = require("chai");
+const { expect } = require("chai");
 const Manager = require("../src/manager");
 
 describe("Manager", () => {
