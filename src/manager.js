@@ -3,13 +3,27 @@ const LogMessage = require("./log-message");
 const LoggifyClient = require("./client");
 
 class LoggifyManager {
-    constructor(project, key, url, syncTimerInterval) {
-        this.url = url;
+    constructor(project, key, settings) {
+        settings = settings || {};
+
+        const { url, timerInterval = 15000, logsLimit = 10, disableStorage = false } = settings;
+
+        /** @type {string} */
         this.project = project;
+
+        /** @type {string} */
         this.key = key;
-        this.logs = Storage.loadObjectSync(this._logsKey) || [];
+
+        /** @type {LogMessage[]} */
+        this.logs = disableStorage ? [] : (Storage.loadObjectSync(this._logsKey) || []);
+
+        /** @type {string} */
         this.userId = null;
-        this.syncTimerInterval = syncTimerInterval || 15000;
+
+        this.url = url;
+        this.disableStorage = disableStorage;
+        this.syncTimerInterval = timerInterval;
+        this.syncLogsLimit = logsLimit;
 
         this._client = new LoggifyClient(this.project, this.key, this.url);
         this._isSyncing = false;
@@ -36,13 +50,38 @@ class LoggifyManager {
     async log(type, message, date, extraData) {
         const msg = new LogMessage(type, message, date, extraData);
         this.logs.push(msg);
-        await Storage.saveObject(this._logsKey, this.logs);
+
+        if (!this.disableStorage) {
+            await Storage.saveObject(this._logsKey, this.logs);
+        }
+
+        return msg;
     }
 
     async sync() {
-        await this._client.sync(this.logs);
-        this.logs = [];
-        await Storage.saveObject(this._logsKey, this.logs);
+        if (!this.logs.length) {
+            return 0;
+        }
+
+        let counter;
+
+        if (this.syncLogsLimit === 0 || this.logs.length <= this.syncLogsLimit) {
+            await this._client.sync(this.logs);
+            counter = this.logs.length;
+            this.logs = [];
+        }
+        else {
+            let logs = this.logs.slice(0, this.syncLogsLimit);
+            await this._client.sync(logs);
+            counter = logs.length;
+            this.logs.splice(0, this.syncLogsLimit);
+        }
+
+        if (!this.disableStorage) {
+            await Storage.saveObject(this._logsKey, this.logs);
+        }
+
+        return counter;
     }
 
     dispose() {
