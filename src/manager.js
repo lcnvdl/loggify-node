@@ -101,21 +101,23 @@ class LoggifyManager {
             return;
         }
 
-        this._interval = setInterval(async () => {
-            if (!this._isSyncing) {
-                this._isSyncing = true;
+        this._interval = setInterval(() => this._doSync(), this.syncTimerInterval);
+    }
 
-                try {
-                    await this.sync();
-                }
-                catch (err) {
-                    console.error(err);
-                }
-                finally {
-                    this._isSyncing = false;
-                }
+    async _doSync() {
+        if (!this._isSyncing) {
+            this._isSyncing = true;
+
+            try {
+                await this.sync();
             }
-        }, this.syncTimerInterval);
+            catch (err) {
+                console.error(err);
+            }
+            finally {
+                this._isSyncing = false;
+            }
+        }
     }
 }
 

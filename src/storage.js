@@ -11,10 +11,6 @@ else {
 }
 
 class Storage {
-    static async loadObject(key) {
-        return await asyncTimeout(1, () => this.loadObjectSync(key));
-    }
-
     static loadObjectSync(key) {
         let v = ls.getItem(key);
         if (!v) {
@@ -24,14 +20,28 @@ class Storage {
         return JSON.parse(v);
     }
 
-    static async saveObject(key, obj) {
-        await asyncTimeout(1, () => {
-            if (typeof obj !== "string") {
-                obj = JSON.stringify(obj);
-            }
+    static saveObjectSync(key, obj) {
+        if (typeof obj !== "string") {
+            obj = JSON.stringify(obj);
+        }
 
-            ls.setItem(key, obj);
-        });
+        ls.setItem(key, obj);
+    }
+
+    static clearSync() {
+        ls.clear();
+    }
+
+    static async clear() {
+        return await asyncTimeout(1, () => Storage.clearSync());
+    }
+
+    static async loadObject(key) {
+        return await asyncTimeout(1, () => Storage.loadObjectSync(key));
+    }
+
+    static async saveObject(key, obj) {
+        await asyncTimeout(1, () => Storage.saveObjectSync(key, obj));
     }
 }
 

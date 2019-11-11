@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "nyc --reporter=text mocha"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,8 @@
   "homepage": "https://github.com/lcnvdl/loggify-node#readme",
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^6.2.2"
+    "mocha": "^6.2.2",
+    "nyc": "^14.1.1"
   },
   "dependencies": {
     "axios": "^0.19.0",
